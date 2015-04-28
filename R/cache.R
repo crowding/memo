@@ -2,42 +2,32 @@
 NULL
 
 #Cache for macro expansions
-cache <- lru_cache()
+global_cache <- lru_cache(size = 10000)
 
-#Macro expansions may employ "...", and there's no way for the
-#compiler to tell here. This stops the "... may be used in an
-#incorrect context" warning.
-cacheenv <- (function(...) environment())()
-
-#Memoize a function based on the raw pointers of the _expression_
-#representation
-#of its arguments. (this technique doesn't seem to work too well on
-#_evaluated_ objects since there is so much copying of them.
-macro_cache <- function(fn, JIT=FALSE) {
+#' Memoize a function based on the raw pointers of its arguments.
+#' @export
+memo <- function(fn, cache=global_cache) {
   force(fn)
+
+  # is this delayedAssign necessary? Because package is loaded before DLL?
   delayedAssign("fn_pointer", object_pointers(list(fn)))
 
   function(...) {
-    digest <- expressions_and_pointers(...)
-    key <- paste(c(fn_pointer, names(digest)), collapse=".")
-    cache(
-      key,
-      if(JIT) {
-        compile(do.call(fn, list_quote(...), quote=TRUE),
-                cacheenv,
-                options=list(suppressUndefined=TRUE))
-      } else  {
-        do.call(fn, list_quote(...), quote=TRUE)
-      })
+    digest <- object_pointers(list(...))
+    key <- paste(c(fn_pointer, digest), collapse=";")
+    cache(key, fn(...))
   }
 }
 
-#' Report on macro cache contents.
+#' Report statistics on cache utilization.
 #'
-#' @return list with entries "hits", "misses", and "size"
-#' @author Peter Meilstrup
+#' @param cache A cache function (such as created by \code{\link{lru_cache}})
+#' @return A list with entries "hits", "misses", "expired" and "entries"
+#' counting how many times the cache has found a previously saved result,
+#' computed a new result, and dropped an old result from memory, and the number
+#' of entries currently in the cache.
 #' @export
-macro_cache_report <- function() {
+cache_stats <- function(cache=global_cache) {
   hitdata <- mget(c("hits", "misses", "expired", "entries"), environment(cache))
   as.list(hitdata)
 }

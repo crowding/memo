@@ -1,7 +1,9 @@
-lru_cache <- function(cache.size = 1000) {
-  lru <- new.env(hash=TRUE, parent=emptyenv(), size=cache.size)
-  pred <- new.env(hash=TRUE, parent=emptyenv(), size=cache.size)
-  succ <- new.env(hash=TRUE, parent=emptyenv(), size=cache.size)
+#' A map from string to value that follows LRU semantics.
+#' @export
+lru_cache <- function(size = 1000) {
+  lru <- new.env(hash=TRUE, parent=emptyenv(), size=size)
+  pred <- new.env(hash=TRUE, parent=emptyenv(), size=size)
+  succ <- new.env(hash=TRUE, parent=emptyenv(), size=size)
 
   hits <- 0
   misses <- 0
@@ -29,7 +31,7 @@ lru_cache <- function(cache.size = 1000) {
       misses <<- misses+1
       lru[[key]] <<- value
       #drop if entries exceeded
-      if (entries >= cache.size) {
+      if (entries >= size) {
         last <- pred$TAIL
         succ[[pred[[last]]]] <<- "TAIL"
         pred$TAIL <<- pred[[last]]

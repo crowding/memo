@@ -1,4 +1,4 @@
 library(testthat)
-library(vadr)
+library(memo)
 
 test_package("vadr")

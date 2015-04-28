@@ -6,17 +6,18 @@
 # @param ... A varying number of arguments.
 # @return A vector of integers containing pointer values, one per argument.
 # @author Peter Meilstrup
-#' @useDynLib vadr _expressions_and_pointers
+#' @useDynLib memo _expressions_and_pointers
 expressions_and_pointers <- function(...) {
   if (!missing(...))
       .Call(`_expressions_and_pointers`, get("..."))
   else list("NULL"=NULL)
 }
 
-## turns out this is almost useless due to all sexps
+## This may be almost useless due to all sexps
 ## being duped when they go into a list. Can be useful
-## for limited cases, but test them
-#' @useDynLib vadr _object_pointers
+## for limited cases, but test them. (This may have
+## have been fixed in R 3.something)
+#' @useDynLib memo _object_pointers
 object_pointers <- function(list) {
   .Call(`_object_pointers`, list)
 }

@@ -1,7 +1,7 @@
 #memo
 ======
 
-In-memory caching of repeated computations, using pointer equivalence.
+In-memory caching of repeated computations, by pointer equivalence.
 
 This package wraps an R function you provide with an in-memory cache
 that caches the function results for repeated access. The cache lookup

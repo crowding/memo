@@ -1,5 +1,10 @@
-#' A map from string to value that follows LRU semantics.
+#' A string-keyed map from string to value.
 #' @export
+#' @param size The maximum number of results to keep.
+#' @return A function f(key, value) which takes a string in the first
+#' parameter and a lazily evaluated value in the second. The function
+#' will return the matching from the cache, or force the second
+#' argument and return that, remembering the result on future calls.
 lru_cache <- function(size = 1000) {
   lru <- new.env(hash=TRUE, parent=emptyenv(), size=size)
   pred <- new.env(hash=TRUE, parent=emptyenv(), size=size)

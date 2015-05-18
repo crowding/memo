@@ -1,12 +1,13 @@
-#' @include lru.R
-NULL
-
 #Cache for macro expansions
-global_cache <- lru_cache(size = 10000)
+global_cache <- NULL
 
 #' Memoize a function based on the raw pointers of its arguments.
 #' @export
-memo <- function(fn, cache=global_cache) {
+#' @param fn A function to wrap. It should be a pure function (i.e. it
+#' should not cause side effects, and should not depend on any
+#' variables that may change.)
+#' @param cache A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
+memo <- function(fn, cache=lru_cache(1000)) {
   force(fn)
 
   # is this delayedAssign necessary? Because package is loaded before DLL?
@@ -30,4 +31,8 @@ memo <- function(fn, cache=global_cache) {
 cache_stats <- function(cache=global_cache) {
   hitdata <- mget(c("hits", "misses", "expired", "entries"), environment(cache))
   as.list(hitdata)
+}
+
+.onLoad <- function(...) {
+  global_cache <<- lru_cache(size=10000)
 }

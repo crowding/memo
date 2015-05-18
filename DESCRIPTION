@@ -5,14 +5,13 @@ Version: 0.1
 Date: 2015-4-25
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
-Description: This package wraps an R function you provide with an in-memory
-    cache that stores previous function results for repeated access. The cache
-    lookup is based on object identity (i.e. pointer equivalence) which is
-    suited functions, that are called repeatedly on the same object.
+Description: This package implements a cache that can be used to avoid repeated
+    computations of functions. The cache lookup is based on object identity (i.e.
+    pointer equivalence) which is suited for functions like accessors, that are
+    called repeatedly on the same object.
 License: MIT + file LICENSE
 Suggests:
     testthat (>= 0.2),
-    digest (>= 0.5.2),
 Collate:
     'lru.R'
     'cache.R'

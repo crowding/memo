@@ -6,7 +6,14 @@
 \alias{memo-package}
 \title{Memoize a function based on the raw pointers of its arguments.}
 \usage{
-memo(fn, cache = global_cache)
+memo(fn, cache = lru_cache(1000))
+}
+\arguments{
+\item{fn}{A function to wrap. It should be a pure function (i.e. it
+should not cause side effects, and should not depend on any
+variables that may change.)}
+
+\item{cache}{A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.}
 }
 \description{
 Memoize a function based on the raw pointers of its arguments.

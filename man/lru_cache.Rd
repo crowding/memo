@@ -2,11 +2,20 @@
 % Please edit documentation in R/lru.R
 \name{lru_cache}
 \alias{lru_cache}
-\title{A map from string to value that follows LRU semantics.}
+\title{A string-keyed map from string to value.}
 \usage{
 lru_cache(size = 1000)
 }
+\arguments{
+\item{size}{The maximum number of results to keep.}
+}
+\value{
+A function f(key, value) which takes a string in the first
+parameter and a lazily evaluated value in the second. The function
+will return the matching from the cache, or force the second
+argument and return that, remembering the result on future calls.
+}
 \description{
-A map from string to value that follows LRU semantics.
+A string-keyed map from string to value.
 }
 

@@ -13,10 +13,10 @@ expressions_and_pointers <- function(...) {
   else list("NULL"=NULL)
 }
 
-## This may be almost useless due to all sexps
-## being duped when they go into a list. Can be useful
-## for limited cases, but test them. (This may have
-## have been fixed in R 3.something)
+# This may be almost useless due to all sexps
+# being duped when they go into a list. Can be useful
+# for limited cases, but test them. (This may have
+# have been fixed in R 3.something)
 #' @useDynLib memo _object_pointers
 object_pointers <- function(list) {
   .Call(`_object_pointers`, list)

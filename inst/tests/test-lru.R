@@ -1,5 +1,7 @@
 context("LRU cache")
 
+`%is%` <- expect_equal
+
 test_that("cache stores values", {
   store <- lru_cache()
   store("foo", 1)
@@ -37,4 +39,12 @@ test_that("cache expires least recently accessed values", {
   #from middle of list
   expect_equal(4, store("qux", stop("should not be evaluated")))
   expect_equal(200, store("baz", 200))
+})
+
+test_that("cache_stats extracts stats", {
+  fib <- function(x) if (x <= 1) 1 else fib(x-1) + fib(x-2)
+  fib <- memo(fib)
+  fib(30)
+  cache_stats(fib) %is%
+      list(size = 1000, used = 31, hits = 28, misses = 31, expired = 0)
 })

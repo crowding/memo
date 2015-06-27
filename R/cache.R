@@ -7,6 +7,7 @@ global_cache <- NULL
 #' should not cause side effects, and should not depend on any
 #' variables that may change.)
 #' @param cache A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
+#' Caches may be shared between memoized functions.
 memo <- function(fn, cache=lru_cache(1000)) {
   force(fn)
 
@@ -22,17 +23,14 @@ memo <- function(fn, cache=lru_cache(1000)) {
 
 #' Report statistics on cache utilization.
 #'
-#' @param cache A cache function (such as created by \code{\link{lru_cache}})
+#' @param fn A memoized function (such as created by \code{\link{memo}})
 #' @return A list with entries "hits", "misses", "expired" and "entries"
 #' counting how many times the cache has found a previously saved result,
 #' computed a new result, and dropped an old result from memory, and the number
 #' of entries currently in the cache.
 #' @export
-cache_stats <- function(cache=global_cache) {
-  hitdata <- mget(c("hits", "misses", "expired", "entries"), environment(cache))
+cache_stats <- function(fn) {
+    hitdata <- mget(c("size", "used", "hits", "misses", "expired"),
+                    environment(environment(fn)$cache))
   as.list(hitdata)
-}
-
-.onLoad <- function(...) {
-  global_cache <<- lru_cache(size=10000)
 }

@@ -13,7 +13,8 @@ memo(fn, cache = lru_cache(1000))
 should not cause side effects, and should not depend on any
 variables that may change.)}
 
-\item{cache}{A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.}
+\item{cache}{A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
+Caches may be shared between memoized functions.}
 }
 \description{
 Memoize a function based on the raw pointers of its arguments.

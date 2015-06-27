@@ -2,7 +2,7 @@
 % Please edit documentation in R/lru.R
 \name{lru_cache}
 \alias{lru_cache}
-\title{A string-keyed map from string to value.}
+\title{A cache keyed on strings with LRU policy.}
 \usage{
 lru_cache(size = 1000)
 }
@@ -14,8 +14,11 @@ A function f(key, value) which takes a string in the first
 parameter and a lazily evaluated value in the second. The function
 will return the matching from the cache, or force the second
 argument and return that, remembering the result on future calls.
+
+When the number of entries in the cache exceeds \code{size}, the least
+recently accessed entries are removed.
 }
 \description{
-A string-keyed map from string to value.
+A cache keyed on strings with LRU policy.
 }
 

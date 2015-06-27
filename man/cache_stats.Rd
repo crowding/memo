@@ -4,10 +4,10 @@
 \alias{cache_stats}
 \title{Report statistics on cache utilization.}
 \usage{
-cache_stats(cache = global_cache)
+cache_stats(fn)
 }
 \arguments{
-\item{cache}{A cache function (such as created by \code{\link{lru_cache}})}
+\item{fn}{A memoized function (such as created by \code{\link{memo}})}
 }
 \value{
 A list with entries "hits", "misses", "expired" and "entries"

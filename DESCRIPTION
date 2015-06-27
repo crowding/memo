@@ -12,8 +12,10 @@ Description: This package implements a cache that can be used to avoid repeated
 License: MIT + file LICENSE
 Suggests:
     testthat (>= 0.2),
+    knitr
 Collate:
     'lru.R'
     'cache.R'
     'getPointer.R'
     'memo-description.r'
+VignetteBuilder: knitr

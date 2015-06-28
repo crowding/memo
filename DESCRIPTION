@@ -10,6 +10,8 @@ Description: This package implements a cache that can be used to avoid repeated
     pointer equivalence) which is suited for functions like accessors, that are
     called repeatedly on the same object.
 License: MIT + file LICENSE
+Imports:
+    digest
 Suggests:
     testthat (>= 0.2),
     knitr

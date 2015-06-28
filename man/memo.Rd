@@ -6,7 +6,7 @@
 \alias{memo-package}
 \title{Memoize a function based on the raw pointers of its arguments.}
 \usage{
-memo(fn, cache = lru_cache(1000))
+memo(fn, cache = lru_cache(1000), key = digest_key)
 }
 \arguments{
 \item{fn}{A function to wrap. It should be a pure function (i.e. it
@@ -19,7 +19,11 @@ Caches may be shared between memoized functions.}
 \description{
 Memoize a function based on the raw pointers of its arguments.
 
-Description of memo goes here.
+This package implements a cache that can be used to avoid repeated
+computations of functions. The cache lookup is based on object
+identity (i.e.  pointer equivalence) which is suited for functions
+like accessors or other functions that are called repeatedly on the
+same object.  Description of memo goes here.
 }
 \author{
 Peter Meilstrup

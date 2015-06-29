@@ -43,8 +43,8 @@ test_that("cache expires least recently accessed values", {
 
 test_that("cache_stats extracts stats", {
   fib <- function(x) if (x <= 1) 1 else fib(x-1) + fib(x-2)
-  fib <- memo(fib)
+  fib <- memo(fib, key=pointer_key)
   fib(30)
   cache_stats(fib) %is%
-      list(size = 1000, used = 31, hits = 28, misses = 31, expired = 0)
+      list(size = 5000, used = 31, hits = 28, misses = 31, expired = 0)
 })

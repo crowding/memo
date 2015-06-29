@@ -5,17 +5,11 @@
 #' variables that may change.)
 #' @param cache A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
 #' Caches may be shared between memoized functions.
-memo <- function(fn, cache=lru_cache(1000), key=digest_key) {
+memo <- function(fn, cache=lru_cache(5000), key=digest_key) {
   force(fn)
 
   # is this delayedAssign necessary? Because package is loaded before DLL?
-  delayedAssign("fn_digest", key(list(fn)))
-
-  function(...) {
-    digest <- key(list(...))
-    digest <- paste(c(fn_digest, digest), collapse=";")
-    cache(digest, fn(...))
-  }
+  key(fn, cache)
 }
 
 #' Report statistics on cache utilization.
@@ -27,27 +21,61 @@ memo <- function(fn, cache=lru_cache(1000), key=digest_key) {
 #' of entries currently in the cache.
 #' @export
 cache_stats <- function(fn) {
-    hitdata <- mget(c("size", "used", "hits", "misses", "expired"),
-                    environment(environment(fn)$cache))
+  hitdata <- mget(c("size", "used", "hits", "misses", "expired"),
+                  environment(environment(fn)$cache))
   as.list(hitdata)
-  }
-
-#' Memoize based on pointer equivalence.
-#'
-#' This may be used as an argument to 'memo' to use pointer
-#' equivalence instead of a computed hash to index the cache.
-#' @param x A list of objects.
-#' @return A string encoding the memory locations of each item in the
-#' list.
-pointer_key <- function(x) {
-  object_pointers(x)
 }
 
-#' Memoize based on object serialization.
+#' Strategies for caching items.
 #'
-#' This is the default key type for \code{\link{memo}}.
-#' @param x A list of objects.
-#' @return A string based on a hash of the object contents.
-digest_key <- function(x) {
-  digest(x)
+#' The function \code{\link{memo}} accepts an argument `key` which
+#' specifies the keying strategy.
+#'
+#' @param fn A function whose results should be cached.
+#' @param cache A cache object.
+#' @return A memoized function.
+#' @name strategies
+NULL
+
+#' \code{digest_key} is the default key strategy. It computes a key by
+#' hashing the contents of the object using the digest package. No
+#' attempt is made to avoid MD5 hash collisions.
+#' @rdname strategies
+#' @export
+digest_key <- function(fn, cache) {
+  delayedAssign("fn_digest", digest(fn))
+  function(...) {
+    digest <- paste0(c(fn_digest, digest(list(...))), collapse=";")
+    cache(digest, fn(...))
+  }
+}
+
+#' The \code{pointer_key} strategy bases its key on object identity,
+#' (that is, pointer equivalence.)  This can be faster because hte
+#' entire object need not be hrbashed. However, this is only useful when
+#' the function is called on the same object repeatedly and that
+#' object is not copied.
+#' @rdname strategies
+#' @export
+pointer_key <- function(fn, cache) {
+  delayedAssign("fn_digest", object_pointers(list(fn)))
+  function(...) {
+    digest <- paste0(c(fn_digest, object_pointers(list(...))), collapse=";")
+    cache(digest, fn(...))
+  }
+}
+
+#' The \code{hybrid_key} strategy first tries object identity and then
+#' falls back on computing the md5 digest. Note that this method uses
+#' twice as many cache slots, since the MD5 digest results are stored
+#' in the same cache.
+#' @rdname strategies
+hybrid_key <- function(cache) {
+  delayedAssign("fn_digest", digest(fn))
+  function(...) {
+    l = list(...)
+    predigest <- paste0(c(fn_digest, object_pointers(l)))
+    digest <- cache(predigest, paste0(c(fn_digest, digest(l))))
+    cache(digest, fn)
+  }
 }

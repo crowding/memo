@@ -6,7 +6,7 @@
 \alias{memo-package}
 \title{Memoize a function based on the raw pointers of its arguments.}
 \usage{
-memo(fn, cache = lru_cache(1000), key = digest_key)
+memo(fn, cache = lru_cache(5000), key = digest_key)
 }
 \arguments{
 \item{fn}{A function to wrap. It should be a pure function (i.e. it

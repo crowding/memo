@@ -1,20 +1,19 @@
 Package: memo
 Type: Package
-Title: In-memory caching of repeated computations, using pointer equivalence.
+Title: In-memory caching of repeated computations.
 Version: 0.1
 Date: 2015-4-25
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
 Description: This package implements a cache that can be used to avoid repeated
-    computations of functions. The cache lookup is based on object identity (i.e.
-    pointer equivalence) which is suited for functions like accessors, that are
-    called repeatedly on the same object.
+    computations of functions.
 License: MIT + file LICENSE
 Imports:
     digest
 Suggests:
     testthat (>= 0.2),
-    knitr
+    knitr,
+    rmarkdown
 Collate:
     'lru.R'
     'cache.R'

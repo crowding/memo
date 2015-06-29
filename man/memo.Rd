@@ -13,8 +13,12 @@ memo(fn, cache = lru_cache(5000), key = digest_key)
 should not cause side effects, and should not depend on any
 variables that may change.)}
 
-\item{cache}{A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
-Caches may be shared between memoized functions.}
+\item{cache}{A cache to use. Defaults to a new instance of
+\code{\link{lru_cache}}.  Caches may be shared between memoized
+functions.}
+
+\item{key}{A key strategy. Default is to compute a hash using the
+digest package.}
 }
 \description{
 Memoize a function based on the raw pointers of its arguments.

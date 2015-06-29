@@ -1,10 +1,13 @@
 #' Memoize a function based on the raw pointers of its arguments.
-#' @export
 #' @param fn A function to wrap. It should be a pure function (i.e. it
 #' should not cause side effects, and should not depend on any
 #' variables that may change.)
-#' @param cache A cache to use. Defaults to a new instance of \code{\link{lru_cache}}.
-#' Caches may be shared between memoized functions.
+#' @param cache A cache to use. Defaults to a new instance of
+#' \code{\link{lru_cache}}.  Caches may be shared between memoized
+#' functions.
+#' @param key A key strategy. Default is to compute a hash using the
+#' digest package.
+#' @export
 memo <- function(fn, cache=lru_cache(5000), key=digest_key) {
   force(fn)
 
@@ -41,6 +44,7 @@ NULL
 #' hashing the contents of the object using the digest package. No
 #' attempt is made to avoid MD5 hash collisions.
 #' @rdname strategies
+#' @import digest
 #' @export
 digest_key <- function(fn, cache) {
   delayedAssign("fn_digest", digest(fn))

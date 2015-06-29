@@ -11,7 +11,7 @@ digest_key(fn, cache)
 
 pointer_key(fn, cache)
 
-hybrid_key(cache)
+hybrid_key(fn, cache)
 }
 \arguments{
 \item{fn}{A function whose results should be cached.}
@@ -31,13 +31,13 @@ attempt is made to avoid MD5 hash collisions.
 
 The \code{pointer_key} strategy bases its key on object identity,
 (that is, pointer equivalence.)  This can be faster because hte
-entire object need not be hrbashed. However, this is only useful when
-the function is called on the same object repeatedly and that
-object is not copied.
+entire object need not be hashed. However, this strategy is only
+useful when the function is called on the same object repeatedly
+and that object is not copied.
 
-The \code{hybrid_key} strategy first tries object identity and then
-falls back on computing the md5 digest. Note that this method uses
-twice as many cache slots, since the MD5 digest results are stored
-in the same cache.
+The \code{hybrid_key} strategy first tries to key on object
+identity and then falls back on computing the md5 digest. Note that
+this method uses twice as many cache slots, since the MD5 digest
+results are cached.
 }
 

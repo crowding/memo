@@ -1,0 +1,64 @@
+---
+title: "The \code{memo} package"
+author: "Peter Meilstrup"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+#memo
+======
+
+The `memo` package implements a simple in-memory cache for the results
+of repeated computations.
+
+## Fibonnacci example
+
+Consider this terrible way to compute the Fibonnacci sequence:
+
+```{r}
+fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
+```
+
+Written this way, the function `fib` recursively invokes itself
+many times, often to re-compute the same function many times over
+again. We can see how many by counting calls in a global variable:
+
+```{r}
+count.calls <- function(f) {
+  force(f)
+  function(...) {
+    count <<- count+1;
+    f(...)
+  }
+}
+
+with_count <- function(f) {
+  force(f)
+  function(...) {
+    count <<- 0
+    c(result=f(...), calls=count)
+  }
+}
+
+fib <- count.calls(fib)
+
+sapply(1:16, with_count(fib))
+```
+
+The number of calls increases unreasonably. This is because, say,
+`fib(6)` needs to compute both `fib(5)` and `fib(4)`, but `fib(5)`
+already computed `fib(4)`, so the second computation is wasted
+work. We would be in better shape if later invocations of `fib` could
+access data from earlier invocations.
+
+By wrapping `fib` using `memo`:
+
+```{r}
+fib <- memo(fib)
+sapply(1:16, with_count(fib))
+```
+
+Here the original function is only called to compute new values.

@@ -52,9 +52,9 @@ digest_key <- function(fn, cache) {
 
 #' The \code{pointer_key} strategy bases its key on object identity,
 #' (that is, pointer equivalence.)  This can be faster because hte
-#' entire object need not be hrbashed. However, this is only useful when
-#' the function is called on the same object repeatedly and that
-#' object is not copied.
+#' entire object need not be hashed. However, this strategy is only
+#' useful when the function is called on the same object repeatedly
+#' and that object is not copied.
 #' @rdname strategies
 #' @export
 pointer_key <- function(fn, cache) {
@@ -65,17 +65,17 @@ pointer_key <- function(fn, cache) {
   }
 }
 
-#' The \code{hybrid_key} strategy first tries object identity and then
-#' falls back on computing the md5 digest. Note that this method uses
-#' twice as many cache slots, since the MD5 digest results are stored
-#' in the same cache.
+#' The \code{hybrid_key} strategy first tries to key on object
+#' identity and then falls back on computing the md5 digest. Note that
+#' this method uses twice as many cache slots, since the MD5 digest
+#' results are cached.
 #' @rdname strategies
-hybrid_key <- function(cache) {
+hybrid_key <- function(fn, cache) {
   delayedAssign("fn_digest", digest(fn))
   function(...) {
     l = list(...)
-    predigest <- paste0(c(fn_digest, object_pointers(l)))
-    digest <- cache(predigest, paste0(c(fn_digest, digest(l))))
-    cache(digest, fn)
+    predigest <- paste0(fn_digest, object_pointers(l), collapse=";")
+    digest <- cache(predigest, paste0(fn_digest, digest(l), collapse=";"))
+    cache(digest, fn(...))
   }
 }

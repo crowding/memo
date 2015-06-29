@@ -28,7 +28,7 @@ with_clean_signals <- function(code = NULL) {
 expect_signal <- function (code, pattern=".+") {
   with_clean_signals({
     force(code)
-    expect_that(paste(signals, collapse=""), matches(pattern),
+    expect_that(paste0(signals, collapse=""), matches(pattern),
                 "No signal seen when one was expected")
   })
 }
@@ -36,7 +36,7 @@ expect_signal <- function (code, pattern=".+") {
 expect_no_signal <- function(code, pattern=".+") {
   with_clean_signals({
     force(code)
-    expect_that(paste(signals, collapse=""), not(matches(pattern)),
+    expect_that(paste0(signals, collapse=""), not(matches(pattern)),
                 "Signal called when none was expected")
   })
 }
@@ -72,4 +72,23 @@ test_that("Digest-based memoisation memoises on content", {
   expect_signal(f(a))
   c <- a + 1 - 1 # i.e. identical object but a new copy.
   expect_no_signal(f(c) %is% seq(2, 10, 2))
+})
+
+with_trace <- function(what, tracer, where=topenv(parent.frame())) {
+  force(where)
+  function(arg) {
+    suppressMessages(trace((what), (tracer), (where), print=FALSE))
+    tryCatch(arg, finally=suppressMessages(untrace((what), (where))))
+  }
+}
+
+test_that("Hybrid falls back on content but limits calls to digest()", {
+  f <- memo(function(x) {signal("E"); x*2}, key=hybrid_key) #"E" for evaluate
+  with_trace("digest", function() signal("D"))({ #"D" for computing digest
+    a <- 1:5 + 0 #R now has range objects????
+    expect_signal(f(a), "DDE")
+    expect_no_signal(f(a)) #digest not computed
+    c <- a + 1 - 1 # i.e. identical object but a new copy.
+    expect_signal(f(c) %is% seq(2, 10, 2), "D") #digest computes, not eval
+  })
 })

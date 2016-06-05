@@ -22,10 +22,10 @@ Consider this terrible way to compute the Fibonnacci sequence:
 fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
 ```
 
-This function os very slow to compute larger values. Each call to `fib(n)` with
+This function is very slow to compute larger values. Each call to `fib(n)` with
 `n > 1` generates two more calls to `fib`, leading to a runtime complexity of
-`O(2^n)`. Let's count how many recursive callsto `fib` are involved in computing
-each `n`:
+`O(2^n)`. Let's count how many recursive calls to `fib` are involved in computing
+each `fib(n)`:
 
 ```{r}
 count.calls <- function(f) {
@@ -55,7 +55,7 @@ computation is wasted work, and this gets worse the higher `n` you have. We
 would be in better shape if later invocations of `fib` could access the values
 that were previously computed.
 
-By wrapping `fib` using `memo`, the repeated calls are not made:
+By wrapping `fib` using `memo`, fewer calls are made:
 
 ```{r}
 library(memo)
@@ -64,8 +64,8 @@ t(sapply(1:16, with_count(fib)))
 ```
 
 Here is only called to compute new values. Note that `fib(16)` only took two
-calls to compute, because fib(15) was previously computed. To compute `fib(16)`
-de novo takes 17 calls:
+calls to compute, because `fib(15)` was previously computed. To compute `fib(16)`
+_de novo_ takes 17 calls:
 
 ```{r}
 fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)

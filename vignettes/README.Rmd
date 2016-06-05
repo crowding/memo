@@ -22,9 +22,10 @@ Consider this terrible way to compute the Fibonnacci sequence:
 fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
 ```
 
-Written this way, the function `fib` recursively invokes itself
-many times, often to re-compute the same function many times over
-again. We can see how many by counting calls in a global variable:
+This function os very slow to compute larger values. Each call to `fib(n)` with
+`n > 1` generates two more calls to `fib`, leading to a runtime complexity of
+`O(2^n)`. Let's count how many recursive callsto `fib` are involved in computing
+each `n`:
 
 ```{r}
 count.calls <- function(f) {
@@ -37,29 +38,38 @@ count.calls <- function(f) {
 
 with_count <- function(f) {
   force(f)
-  function(...) {
+  function(x) {
     count <<- 0
-    c(result=f(...), calls=count)
+    c(n=x, result=f(x), calls=count)
   }
 }
 
 fib <- count.calls(fib)
 
-sapply(1:16, with_count(fib))
+t(sapply(1:16, with_count(fib)))
 ```
 
-The number of calls increases unreasonably. This is because, say,
-`fib(6)` needs to compute both `fib(5)` and `fib(4)`, but `fib(5)`
-already computed `fib(4)`, so the second computation is wasted
-work. We would be in better shape if later invocations of `fib` could
-access data from earlier invocations.
+The number of calls increases unreasonably. This is because, say, `fib(6)` calls
+both `fib(5)` and `fib(4)`, but `fib(5)` also calls `fib(4)`, so the second
+computation is wasted work, and this gets worse the higher `n` you have. We
+would be in better shape if later invocations of `fib` could access the values
+that were previously computed.
 
-By wrapping `fib` using `memo`:
+By wrapping `fib` using `memo`, the repeated calls are not made:
 
 ```{r}
 library(memo)
 fib <- memo(fib)
-sapply(1:16, with_count(fib))
+t(sapply(1:16, with_count(fib)))
 ```
 
-Here the original function is only called to compute new values.
+Here is only called to compute new values. Note that `fib(16)` only took two
+calls to compute, because fib(15) was previously computed. To compute `fib(16)`
+de novo takes 17 calls:
+
+```{r}
+fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
+fib <- memo(count.calls(fib))
+with_count(fib)(16)
+```
+ 

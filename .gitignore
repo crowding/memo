@@ -64,3 +64,4 @@ pools
 *.prv
 *.blg
 DONE
+.Rproj.user

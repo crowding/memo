@@ -1,22 +1,124 @@
+---
+title: "The 'memo' package"
+author: "Peter Meilstrup"
+date: "2016-06-05"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
 #memo
 ======
 
-In-memory caching of repeated computations, by pointer equivalence.
+The `memo` package implements a simple in-memory cache for the results
+of repeated computations.
 
-This package implements a cache that can be used to avoid repeated
-computations of functions.
+## Fibonnacci example
 
-By default, the hash is based on the object's contents, as implemented
-by the `digest` package. Alternately, the cache may be based on object
-identity (i.e. pointer equivalence) which is suited for functions like
-accessors or other functions that are called repeatedly on the same
-object.
+Consider this terrible way to compute the Fibonnacci sequence:
 
-If you are looking to memoize the results of computations lasting more
-than several milliseconds, computations with non-scalar inputs, or to
-build a disk cache for results too big for memory, you may be better
-off with one of the following packages:
 
-* [memoise](https://github.com/hadley/memoise)
-* [diskmemoiser](http://cran.r-project.org/web/packages/diskmemoiser/index.html)
-* [R.cache](http://cran.r-project.org/web/packages/R.cache/index.html)
+```r
+fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
+```
+
+This function os very slow to compute larger values. Each call to `fib(n)` with
+`n > 1` generates two more calls to `fib`, leading to a runtime complexity of
+`O(2^n)`. Let's count how many recursive callsto `fib` are involved in computing
+each `n`:
+
+
+```r
+count.calls <- function(f) {
+  force(f)
+  function(...) {
+    count <<- count+1;
+    f(...)
+  }
+}
+
+with_count <- function(f) {
+  force(f)
+  function(x) {
+    count <<- 0
+    c(n=x, result=f(x), calls=count)
+  }
+}
+
+fib <- count.calls(fib)
+
+t(sapply(1:16, with_count(fib)))
+```
+
+```
+##        n result calls
+##  [1,]  1      1     1
+##  [2,]  2      2     3
+##  [3,]  3      3     5
+##  [4,]  4      5     9
+##  [5,]  5      8    15
+##  [6,]  6     13    25
+##  [7,]  7     21    41
+##  [8,]  8     34    67
+##  [9,]  9     55   109
+## [10,] 10     89   177
+## [11,] 11    144   287
+## [12,] 12    233   465
+## [13,] 13    377   753
+## [14,] 14    610  1219
+## [15,] 15    987  1973
+## [16,] 16   1597  3193
+```
+
+The number of calls increases unreasonably. This is because, say, `fib(6)` calls
+both `fib(5)` and `fib(4)`, but `fib(5)` also calls `fib(4)`, so the second
+computation is wasted work, and this gets worse the higher `n` you have. We
+would be in better shape if later invocations of `fib` could access the values
+that were previously computed.
+
+By wrapping `fib` using `memo`, the repeated calls are not made:
+
+
+```r
+library(memo)
+fib <- memo(fib)
+t(sapply(1:16, with_count(fib)))
+```
+
+```
+##        n result calls
+##  [1,]  1      1     1
+##  [2,]  2      2     3
+##  [3,]  3      3     2
+##  [4,]  4      5     2
+##  [5,]  5      8     2
+##  [6,]  6     13     2
+##  [7,]  7     21     2
+##  [8,]  8     34     2
+##  [9,]  9     55     2
+## [10,] 10     89     2
+## [11,] 11    144     2
+## [12,] 12    233     2
+## [13,] 13    377     2
+## [14,] 14    610     2
+## [15,] 15    987     2
+## [16,] 16   1597     2
+```
+
+Here is only called to compute new values. Note that `fib(16)` only took two
+calls to compute, because fib(15) was previously computed. To compute `fib(16)`
+de novo takes 17 calls:
+
+
+```r
+fib <- function(n) if (n <= 1) 1 else fib(n-1) + fib(n-2)
+fib <- memo(count.calls(fib))
+with_count(fib)(16)
+```
+
+```
+##      n result  calls 
+##     16   1597     17
+```
+ 

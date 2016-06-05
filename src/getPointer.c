@@ -139,6 +139,8 @@ SEXP stringify_item(SEXP item, char *bufptr) {
     case LANGSXP:
     case EXPRSXP:
     case BCODESXP:
+    case BUILTINSXP:
+    case SPECIALSXP:
     case NILSXP:
       /* We have an expression-ish, represent its pointer. */
       bufptr += sprintf(bufptr, "e%p", (void *)item);

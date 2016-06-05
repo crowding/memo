@@ -1,12 +1,12 @@
 Package: memo
 Type: Package
-Title: In-memory caching of repeated computations.
+Title: In-memory caching for repeated computations
 Version: 0.1
 Date: 2015-4-25
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
-Description: This package implements a cache that can be used to avoid repeated
-    computations of functions.
+Description: This package implements a simple in-memory cache that can be used
+    to avoud repeated computations of functions.
 License: MIT + file LICENSE
 Imports:
     digest
@@ -20,3 +20,4 @@ Collate:
     'getPointer.R'
     'memo-description.r'
 VignetteBuilder: knitr
+RoxygenNote: 5.0.1

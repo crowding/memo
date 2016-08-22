@@ -3,6 +3,7 @@ library("digest")
 
 `%is%` <- expect_equal
 
+# For these tests we record "signals" when arguments are forced or an error occurs.
 signals <- c()
 signal <- function(x=".") {
   signals <<- c(signals, x)
@@ -34,10 +35,10 @@ expect_signal <- function (code, pattern=".+") {
   })
 }
 
-expect_no_signal <- function(code, pattern=".+") {
+expect_no_signal <- function(code, pattern="^$") {
   with_clean_signals({
     force(code)
-    expect_that(paste0(signals, collapse=""), not(matches(pattern)),
+    expect_that(paste0(signals, collapse=""), matches(pattern),
                 "Signal called when none was expected")
   })
 }

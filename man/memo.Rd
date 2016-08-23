@@ -11,13 +11,13 @@ memo(fn, cache = lru_cache(5000), key = hybrid_key, ...)
 \arguments{
 \item{fn}{A function to wrap. It should be a pure function (i.e. it should
 not cause side effects, and should not depend on any variables that may
-change.) It should not be a nonstandard-evaluating function. All arguments 
+change.) It should not be a nonstandard-evaluating function. All arguments
 will be forced by the wrapper.}
 
-\item{cache}{A cache to use. Defaults to a new instance of 
+\item{cache}{A cache to use. Defaults to a new instance of
 \code{\link{lru_cache}}.  Caches may be shared between memoized functions.}
 
-\item{key}{A hashing strategy. "\code{\link{digest_key}}". 
+\item{key}{A hashing strategy. "\code{\link{digest_key}}".
 Other values include "pointer_key" and "hybrid_key".}
 
 \item{...}{Further arguments passed on to key.}

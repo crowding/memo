@@ -88,10 +88,10 @@ test_that("Hybrid falls back on content but limits calls to digest()", local({
   signalDigest <- function(x) {signal("D"); digest(x)}
   f <- memo(
     function(x) {
-      signal("E"); 
+      signal("E");
       x*2
-    }, 
-    key="hybrid_key", 
+    },
+    key="hybrid_key",
     digest=signalDigest) #"E" for evaluate
   a <- 1:5 + 0 #R now has range objects
   expect_signal(f(a), "DDE")
@@ -104,7 +104,7 @@ test_that("pointer and hybrid caches hold on to their arguments", local({
   # test: a large argument can be used in digest_cache and then forgotten.
   # Same is not true of pointer_key or hybrid_key.
   memused <- function() sum(gc()[,2])
-  
+
   observe_keysize <- function(key) {
     f <- memo(sum, key=key)
     x1 = memused()

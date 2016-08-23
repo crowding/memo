@@ -1,23 +1,12 @@
-# Passed a list of dots arguments, returns their expressions and, in
-# names, their machine pointers.
-#
-# This is used to obtain unique identifying strings for a list of arguments
-#
-# @param ... A varying number of arguments.
-# @return A vector of integers containing pointer values, one per argument.
-# @author Peter Meilstrup
-#' @useDynLib memo _expressions_and_pointers
-expressions_and_pointers <- function(...) {
-  if (!missing(...))
-      .Call(`_expressions_and_pointers`, get("..."))
-  else list("NULL"=NULL)
-}
-
-# This may be almost useless due to all sexps
-# being duped when they go into a list. Can be useful
-# for limited cases, but test them. (This may have
-# have been fixed in R 3.something)
-#' @useDynLib memo _object_pointers
-object_pointers <- function(list) {
-  .Call(`_object_pointers`, list)
+# Return some canonical identifying strings for each of a list of objects.
+# For scalars, the values are directly represented.
+# For scalar strings, we use the pointer to the interned CHARSXP.
+# For other objects, we use the pointer.
+# If the list has names, we represent store STRSXP pointers to the names
+# Because it is possible for objects-pointed-to to be GCed and replaced with
+# different objects, the calling code is responsible for holding on to
+# references to the objects (see test-cache.R).
+#' @useDynLib memo _string_reps
+string_reps <- function(list) {
+  .Call(`_string_reps`, list)
 }

@@ -1,82 +1,64 @@
 #include "vadr.h"
 
-int _dots_length(SEXP dots);
 SEXP stringify_item(SEXP, char *);
+SEXP _string_reps(SEXP);
 
-/*
- * Extract every unevaluated element or literal of a
- * dots-list. In the names, give their pointers.
+/* Return some canonical identifying strings for each of a list of objects.
+ * For scalars, the values are directly represented.
+ * For scalar strings, we use the pointer to the interned CHARSXP.
+ * For other objects, we use the pointer.
+ * If the list has names, we represent store STRSXP pointers to the names
+ * Because it is possible for objects-pointed-to to be GCed and replaced with 
+ * different objects, the calling code is responsible for holding on to
+ * references to the objects (see test-cache.R).
  */
-SEXP _expressions_and_pointers(SEXP dots) {
-  SEXP result, names, s;
-  int i, length;
-  length = _dots_length(dots);
-  PROTECT(result = allocVector(VECSXP, length));
-  PROTECT(names = allocVector(STRSXP, length));
-  for (s = dots, i = 0; i < length; s = CDR(s), i++) {
-    SEXP extract;
-    SEXP item=CAR(s);
-    char buf[99]; /* will hold a n optional tag and =, value, and |...*/
-    char *bufptr = buf;
-    if (TAG(s) != R_NilValue) {
-      assert_type3(TAG(s), SYMSXP, "tag");
-      assert_type3(PRINTNAME(TAG(s)), CHARSXP, "symbol name");
-      bufptr += sprintf(bufptr, "c%p=", CHAR(PRINTNAME(TAG(s))));
+SEXP _string_reps(SEXP list) {
+  assert_type(list, VECSXP); 
+
+  int length = LENGTH(list);
+  SEXP in_names = getAttrib(list, R_NamesSymbol);
+  SEXP out_reps = PROTECT(allocVector(STRSXP, length));
+  SEXP out_names;
+  
+  if (in_names != R_NilValue) {
+    assert_type3(in_names, STRSXP, "names attribute should be a character vector");
+    if (LENGTH(in_names) < length) {
+      in_names = R_NilValue;
+      out_names = R_NilValue;
+    } else {
+      PROTECT(out_names = allocVector(STRSXP, length));
     }
-    extract = stringify_item(item, bufptr);
-    SET_VECTOR_ELT(result, i, extract);
-    SET_STRING_ELT(names, i, mkChar(buf));
+  } else {
+    out_names = R_NilValue;
   }
 
-  /* set the name as a string */
-  setAttrib(result, R_NamesSymbol, names);
-
-  UNPROTECT(2);
-  return(result);
-}
-
-/* Return some canonical interned names for each of a list of objects.
- * May reveal that objects are poor holders of things. */
-SEXP _object_pointers(SEXP list) {
-  SEXP names;
-  int i, length;
-  assert_type(list, VECSXP);
-  length = LENGTH(list);
-  PROTECT(names = allocVector(STRSXP, length));
-
-  SEXP name_names;
-  name_names = getAttrib(list, R_NamesSymbol);
-  if (name_names != R_NilValue) {
-    assert_type3(name_names, STRSXP, "names property");
-    if (LENGTH(name_names) < length)
-      name_names = R_NilValue;
-  }
-
-  for (i = 0; i < length; i++) {
+  for (int i = 0; i < length; i++) {
     SEXP item = VECTOR_ELT(list, i);
-    char buf[99]; /* will hold a n optional tag and =, value, and |...*/
+    char buf[99]; /* worst case, element has a name and is a CLOSXP;
+                     "c01234567=c_01234567/01234567/01234567/01234567" */
     char *bufptr = buf;
 
-    if (name_names != R_NilValue) {
-      SEXP name = STRING_ELT(name_names, i);
-      if (name != R_BlankString)
+    if (in_names != R_NilValue) {
+      SEXP name = STRING_ELT(in_names, i);
+      if (name != R_BlankString) {
         bufptr += sprintf(bufptr, "c%p=", R_CHAR(name));
+      }
     }
 
     stringify_item(item, bufptr);
-    SET_STRING_ELT(names, i, mkChar(buf));
+    SET_STRING_ELT(out_reps, i, mkChar(buf));
   }
 
-  setAttrib(names, R_NamesSymbol, name_names);
+  if (in_names != R_NilValue) {
+    setAttrib(out_names, R_NamesSymbol, in_names);
+    UNPROTECT(1);
+  }
 
-  /* set the name as a string */
   UNPROTECT(1);
-  return(names);
+  return(out_reps);
 }
 
-/* Construct some canonical pointer and put it into a char buffer.
- * Return a SEXP you might want to hold on to.
- */
+/* Construct a string identifying some SEXP, either as a scalar value or as a pointer. */
 SEXP stringify_item(SEXP item, char *bufptr) {
   int done = 0;
   SEXP result = R_NilValue;
@@ -95,7 +77,7 @@ SEXP stringify_item(SEXP item, char *bufptr) {
     case STRSXP:
     case LGLSXP:
       /* we have a code literal. represent it canonically,
-         and don't hold a ref to a simple number. */
+         and don't hold a ref to a scalar. */
       result = R_NilValue;
       if (LENGTH(item) == 0) {
         switch(TYPEOF(item)) {
@@ -153,21 +135,6 @@ SEXP stringify_item(SEXP item, char *bufptr) {
   }
   SET_NAMED(result, 2);
   return result;
-}
-
-/* measure the length of a dots object. */
-int _dots_length(SEXP dots) {
-  SEXP s; int length;
-  switch (TYPEOF(dots)) {
-  case VECSXP:
-    if (LENGTH(dots) == 0) return 0;
-    break;
-  case DOTSXP:
-    for (s = dots, length = 0; s != R_NilValue; s = CDR(s)) length++;
-    return length;
-  }
-  error("Expected a dots object");
-  return 0;
 }
 
 /*

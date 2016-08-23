@@ -1,11 +1,11 @@
 #' Memoize a function.
 #' @param fn A function to wrap. It should be a pure function (i.e. it should
 #'   not cause side effects, and should not depend on any variables that may
-#'   change.) It should not be a nonstandard-evaluating function. All arguments 
+#'   change.) It should not be a nonstandard-evaluating function. All arguments
 #'   will be forced by the wrapper.
-#' @param cache A cache to use. Defaults to a new instance of 
+#' @param cache A cache to use. Defaults to a new instance of
 #'   \code{\link{lru_cache}}.  Caches may be shared between memoized functions.
-#' @param key A hashing strategy. "\code{\link{digest_key}}". 
+#' @param key A hashing strategy. "\code{\link{digest_key}}".
 #' Other values include "pointer_key" and "hybrid_key".
 #' @param ... Further arguments passed on to key.
 #' @export
@@ -19,8 +19,8 @@ memo <- function(fn, cache=lru_cache(5000), key=hybrid_key, ...) {
 #'
 #' @param fn A memoized function that was created by \code{\link{memo}}.
 #' @return A list with labels "size", "used", "hits", "misses", "expired"
-#' counting the number of slots in the cache, the number of slots currently 
-#' used, the number of times a previous result was recalled, a new result was 
+#' counting the number of slots in the cache, the number of slots currently
+#' used, the number of times a previous result was recalled, a new result was
 #' recorded, and a result was dropped.
 #' @export
 cache_stats <- function(fn) {
@@ -63,10 +63,10 @@ digest_key <- function(fn, cache, digest=digest::digest) {
 #' @rdname strategies
 #' @export
 pointer_key <- function(fn, cache) {
-  delayedAssign("fn_digest", object_pointers(list(fn)))
+  delayedAssign("fn_digest", string_reps(list(fn)))
   function(...) {
     l <- list(...)
-    key <- paste0(c(fn_digest, object_pointers(list(...))), collapse=";")
+    key <- paste0(c(fn_digest, string_reps(list(...))), collapse=";")
     # hold onto the argument list while the cache remembers the pointer value
     cache(key, list(fn(...), l))[[1]]
   }
@@ -81,10 +81,10 @@ hybrid_key <- function(fn, cache, digest=digest::digest) {
   delayedAssign("fn_digest", digest(fn))
   function(...) {
     l = list(...)
-    predigest <- paste0(c(fn_digest, object_pointers(l)), collapse=";")
+    predigest <- paste0(c(fn_digest, string_reps(l)), collapse=";")
     # also hold on to the argument list
-    digest <- cache(predigest, 
-                    list(paste0(fn_digest, digest(l), collapse=";"), 
+    digest <- cache(predigest,
+                    list(paste0(fn_digest, digest(l), collapse=";"),
                          l)
                     )[[1]]
     cache(digest, fn(...))

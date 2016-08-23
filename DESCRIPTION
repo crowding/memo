@@ -1,12 +1,13 @@
 Package: memo
 Type: Package
-Title: In-memory caching for repeated computations
+Title: In-Memory Caching for Repeated Computations
 Version: 1.0
 Date: 2016-8-22
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
-Description: This package implements a simple in-memory, LRU cache that can be wrapped
-    around any function to memoize it.
+Description: A simple in-memory, LRU cache that can be wrapped
+    around any function to memoize it. The cache can be keyed on a hash of the
+    input data (using 'digest') or on pointer equivalence.
 License: MIT + file LICENSE
 Imports:
     digest

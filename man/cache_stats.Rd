@@ -11,8 +11,8 @@ cache_stats(fn)
 }
 \value{
 A list with labels "size", "used", "hits", "misses", "expired"
-counting the number of slots in the cache, the number of slots currently 
-used, the number of times a previous result was recalled, a new result was 
+counting the number of slots in the cache, the number of slots currently
+used, the number of times a previous result was recalled, a new result was
 recorded, and a result was dropped.
 }
 \description{

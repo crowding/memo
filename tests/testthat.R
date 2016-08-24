@@ -1,4 +1,4 @@
 library(testthat)
 library(memo)
 
-test_package("memo")
+test_check("memo")

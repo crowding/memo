@@ -4,12 +4,15 @@ SEXP stringify_item(SEXP, char *);
 SEXP _string_reps(SEXP);
 int sprintdouble(char *, double);
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && !defined(__MINGW32__)
+
 int sprintdouble(char *buf, double arg) {
   return sprintf(buf, "%la", arg);
 }
+
 #else
-/* hack for stdlib that doesn't support "%a" printf conversion */
+
+/* hack for stdlibs that don't support "%a" printf conversion */
 int sprintdouble(char *buf, double arg) {
   int written = 0;
   union {
@@ -25,6 +28,7 @@ int sprintdouble(char *buf, double arg) {
   }
   return written;
 }
+
 #endif
 
 

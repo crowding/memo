@@ -46,7 +46,7 @@ SEXP _string_reps(SEXP list) {
   assert_type(list, VECSXP); 
 
   int length = LENGTH(list);
-  SEXP in_names = getAttrib(list, R_NamesSymbol);
+  SEXP in_names = PROTECT(getAttrib(list, R_NamesSymbol));
   SEXP out_reps = PROTECT(allocVector(STRSXP, length));
   SEXP out_names;
   
@@ -85,7 +85,7 @@ SEXP _string_reps(SEXP list) {
     UNPROTECT(1);
   }
 
-  UNPROTECT(1);
+  UNPROTECT(2);
   return(out_reps);
 }
 
@@ -94,7 +94,9 @@ SEXP _string_reps(SEXP list) {
    Return that pointer, or R_NilValue. */
 SEXP stringify_item(SEXP item, char *bufptr) {
   int done = 0;
-  SEXP item_ptr = R_NilValue;
+  PROTECT_INDEX ix;
+  SEXP item_ptr;
+  PROTECT_WITH_INDEX(item_ptr = R_NilValue, &ix);
   while(!done) {
     switch (TYPEOF(item)) {
     case PROMSXP:
@@ -103,7 +105,7 @@ SEXP stringify_item(SEXP item, char *bufptr) {
       break;
     case CHARSXP:
       /* interned string, represent its pointer */
-      item_ptr = item;
+      REPROTECT(item_ptr = item, ix);
       bufptr += sprintf(bufptr, "c%p", CHAR(item_ptr));
       done = 1;
       break;
@@ -130,24 +132,24 @@ SEXP stringify_item(SEXP item, char *bufptr) {
         case INTSXP: bufptr += sprintf(bufptr, "i%x", INTEGER(item)[0]); break;
         case LGLSXP: bufptr += sprintf(bufptr, "l%x", LOGICAL(item)[0]); break;
         case STRSXP:
-          item_ptr = STRING_ELT(item, 0);
+          REPROTECT(item_ptr = STRING_ELT(item, 0), ix);
           bufptr += sprintf(bufptr, "s%p", CHAR(item_ptr)); break;
         default: error("Unexpected type %s (this shouldn't happen)", TYPEOF(item));
         }
       } else {
         /* for non-scalar vectors, represent the pointer */
-        item_ptr = item;
+        REPROTECT(item_ptr = item, ix);
         bufptr += sprintf(bufptr, "v%p", (void *)item_ptr);
       }
       done = 1;
       break;
     case VECSXP:
-      item_ptr = item;
+      REPROTECT(item_ptr = item, ix);
       bufptr += sprintf(bufptr, "l%p", (void *)item_ptr);
       done = 1;
       break;
     case CLOSXP:
-      item_ptr = item;
+      REPROTECT(item_ptr = item, ix);
       bufptr += sprintf(bufptr, "c_%p/%p/%p",
                         (void *) FORMALS(item),
                         (void *) BODY(item),
@@ -162,7 +164,7 @@ SEXP stringify_item(SEXP item, char *bufptr) {
     case SPECIALSXP:
     case NILSXP:
       /* We have an expression-ish, represent its pointer. */
-      item_ptr = item;
+      REPROTECT(item_ptr = item, ix);
       bufptr += sprintf(bufptr, "e%p", (void *)item_ptr);
       done = 1;
       break;
@@ -173,6 +175,7 @@ SEXP stringify_item(SEXP item, char *bufptr) {
   if (item_ptr != R_NilValue) {
     SET_NAMED(item_ptr, 2);
   }
+  UNPROTECT(1);
   return item_ptr;
 }
 

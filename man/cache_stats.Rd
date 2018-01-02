@@ -18,4 +18,3 @@ recorded, and a result was dropped.
 \description{
 Report cache statistics.
 }
-

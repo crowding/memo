@@ -3,6 +3,7 @@
 \docType{package}
 \name{memo}
 \alias{memo}
+\alias{memo}
 \alias{memo-package}
 \title{Memoize a function.}
 \usage{
@@ -34,4 +35,3 @@ same object.  Description of memo goes here.
 \author{
 Peter Meilstrup
 }
-

@@ -1,8 +1,8 @@
 Package: memo
 Type: Package
 Title: In-Memory Caching for Repeated Computations
-Version: 1.0
-Date: 2016-8-22
+Version: 1.0.1
+Date: 2018-1-03
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
 Description: A simple in-memory, LRU cache that can be wrapped
@@ -21,4 +21,4 @@ Collate:
     'getPointer.R'
     'memo-description.r'
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

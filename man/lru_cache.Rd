@@ -22,4 +22,3 @@ recently accessed entries are removed.
 \description{
 Construct a cache with least-recently-used policy.
 }
-

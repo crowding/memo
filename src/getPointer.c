@@ -1,7 +1,6 @@
 #include "vadr.h"
 
 SEXP stringify_item(SEXP, char *);
-SEXP _string_reps(SEXP);
 int sprintdouble(char *, double);
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && !defined(__MINGW32__)
@@ -90,7 +89,7 @@ SEXP _string_reps(SEXP list) {
 }
 
 /* Construct a string identifying some SEXP, either as a scalar value or as a pointer.
-   If we use its pointer, set NAMED = 2 on the pointer used.
+   If we use its pointer, mark the item immutable.
    Return that pointer, or R_NilValue. */
 SEXP stringify_item(SEXP item, char *bufptr) {
   int done = 0;
@@ -173,7 +172,7 @@ SEXP stringify_item(SEXP item, char *bufptr) {
     }
   }
   if (item_ptr != R_NilValue) {
-    SET_NAMED(item_ptr, 2);
+    MARK_NOT_MUTABLE(item_ptr);
   }
   UNPROTECT(1);
   return item_ptr;

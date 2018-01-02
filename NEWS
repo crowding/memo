@@ -1,0 +1,12 @@
+memo v1.0.1 (Release date: 2018-01-01)
+================
+
+Changes:
+
+* Addressed potential protection issues raised by rchk
+* Update to use MARK_NOT_MUTABLE instead of NAMED.
+
+memo v1.0.0 (Release date: 2016-08-22)
+================
+
+Initial release.

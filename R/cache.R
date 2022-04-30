@@ -5,8 +5,10 @@
 #'   will be forced by the wrapper.
 #' @param cache A cache to use. Defaults to a new instance of
 #'   \code{\link{lru_cache}}.  Caches may be shared between memoized functions.
-#' @param key A hashing strategy. "\code{\link{digest_key}}".
-#' Other values include "pointer_key" and "hybrid_key".
+#' @param key A hashing strategy. The default "\code{\link{hybrid_key}}"
+#' first checks for pointer equivalence and then falls back to using a
+#' hash of the arguments. `pointer_key` uses just pointer equivalence,
+#' and `digest_key` always performs a hash.
 #' @param ... Further arguments passed on to key.
 #' @export
 memo <- function(fn, cache=lru_cache(5000), key=hybrid_key, ...) {

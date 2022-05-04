@@ -1,4 +1,5 @@
 *.fig
+*.rds
 *.asc
 *.mat
 *.dep

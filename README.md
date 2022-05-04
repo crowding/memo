@@ -1,5 +1,10 @@
 #memo
-======
+======  
+
+[![](https://www.r-pkg.org/badges/version/async?color=purple)](https://cran.r-project.org/package=memo)
+[![pkgdown](https://github.com/crowding/memo/workflows/pkgdown/badge.svg)](https://github.com/crowding/memo/actions)
+[![check-full](https://github.com/crowding/memo/workflows/check-full/badge.svg)](https://github.com/crowding/memo/actions)
+[![test-coverage](https://github.com/crowding/memo/workflows/test-coverage/badge.svg)](https://github.com/crowding/memo/actions)
 
 The `memo` package implements a simple in-memory cache for results of a function. If you have en expensive function that is being called repeatedly with the same inputs, `memo` can help.
 

@@ -73,7 +73,7 @@
 <div class="page-header"><h1 id="memo">#memo<a class="anchor" aria-label="anchor" href="#memo"></a>
 </h1></div>
 
-<p>The <code>memo</code> package implements a simple in-memory cache for results of a function. If you have en expensive function that is being called repeatedly with the same inputs, <code>memo</code> can help.</p>
+<p>The <code>memo</code> package implements a simple in-memory cache for the results of a function. If you have an expensive function that is being called repeatedly with the same inputs, <code>memo</code> can help.</p>
 <div class="section level2">
 <h2 id="fibonnacci-example">Fibonnacci example<a class="anchor" aria-label="anchor" href="#fibonnacci-example"></a>
 </h2>
@@ -81,7 +81,7 @@
 <code class="sourceCode R"><span class="va">fib</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="va">n</span> <span class="op">&lt;=</span> <span class="fl">1</span><span class="op">)</span> <span class="fl">1</span> <span class="kw">else</span> <span class="fu">fib</span><span class="op">(</span><span class="va">n</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">fib</span><span class="op">(</span><span class="va">n</span><span class="op">-</span><span class="fl">2</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">9</span>, <span class="va">fib</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##  [1]  1  1  2  3  5  8 13 21 34 55</span></code></pre>
-<p>This recursive implementation corresponds closely to the way the sequence is defined in math texts, but it has a performance problem. The problem is that as you ask for values further down the sequence, the computation becomes inordinately slow due to all the recursion. To demonstrate the issue, we can try counting every time <code>fib</code> is called:</p>
+<p>This recursive implementation corresponds closely to the way the sequence is defined in math texts, but it has a performance problem. The problem is that as you ask for values further down the sequence, the computation becomes inordinately slow due to recursion. To demonstrate the issue, we can try counting every time <code>fib</code> is called:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">count</span> <span class="op">&lt;-</span> <span class="fl">0</span>
 <span class="va">fib</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">{</span>
@@ -113,7 +113,7 @@
 <span class="co">## [15,] 14    610  1219</span>
 <span class="co">## [16,] 15    987  1973</span>
 <span class="co">## [17,] 16   1597  3193</span></code></pre>
-<p>The number of calls increases unreasonably. This is because, for instance, <code>fib(6)</code> calls both <code>fib(5)</code> and <code>fib(4)</code>, but <code>fib(5)</code> also calls <code>fib(4)</code>. The second call to <code>fib(4)</code> is wasted work. This gets worse the higher <code>n</code> goes – Every time you increment <code>n</code> by one, the number of calls roughly doubles. (Clearly, there are more efficient algorithms for computing the Fibbonacci sequence, but this is a toy example, where <code>fib</code> stands in for some expensive function that is being called repeatedly.)</p>
+<p>The number of calls increases unreasonably. This is because, for instance, <code>fib(6)</code> calls both <code>fib(5)</code> and <code>fib(4)</code>, but <code>fib(5)</code> also calls <code>fib(4)</code>. The second call to <code>fib(4)</code> is wasted work. And this pattern goes on – the two calls to <code>fib(4)</code> lead to <em>four</em> calls to <code>fib(2)</code>. Every time you increment <code>n</code> by one, the number of calls roughly doubles. (Clearly, there are more efficient algorithms for computing the Fibbonacci sequence, but this is a toy example, where <code>fib</code> stands in for some expensive function that is being called repeatedly.)</p>
 <p>One way to cut down on wasted effort would be to check whether <code>fib(n)</code> has already been computed for a given <code>n</code>. If it has, <code>fib</code> can just return that value instead of starting over. This is called “memoizing.” The <code>memo</code> package can <a href="">automatically</a> create a memoized version of a given function, just by wrapping the function definition in <code><a href="https://rdrr.io/pkg/memo/man/memo.html" class="external-link">memo()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">memo</span><span class="op">)</span>
@@ -150,7 +150,11 @@
 <span class="co">## [12,] 28  514229     2</span>
 <span class="co">## [13,] 29  832040     2</span>
 <span class="co">## [14,] 30 1346269     2</span></code></pre>
-<p>More practically, think of <code>memo</code> to make a cache for expensive database lookups, especially in multi-user Shiny apps where many users make identical queries. Memoization is also useful to optimize algorithms for path finding and recursive descent.</p>
+<p>The tradeoff for this speedup is the memory used to store previous results. By default <code>memo</code> will remember the 5000 most recently used results; to adjust that limit you can change the <code>cache</code> option:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fib</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/memo/man/memo.html" class="external-link">memo</a></span><span class="op">(</span>cache<span class="op">=</span><span class="fu"><a href="reference/lru_cache.html">lru_cache</a></span><span class="op">(</span><span class="fl">5000</span><span class="op">)</span>, <span class="kw">function</span> <span class="op">(</span><span class="op">)</span> <span class="op">{</span><span class="va">...</span><span class="op">}</span><span class="op">)</span></code></pre></div>
+<p>The Fibonacci sequence being kind of a toy example, memoization has a variety of uses, such as:<br>
+* Caching the results of expensive database queries, for instance in Shiny apps where many users may make identical queries. * Algorithms for path finding (dynamic programming) and parsing. * Simulations such as <a href="https://en.wikipedia.org/wiki/Hashlife" class="external-link">Cellular automata</a>.</p>
 </div>
 </div>
   </div>
@@ -192,7 +196,7 @@
 <ul class="list-unstyled">
 <li><a href="https://cran.r-project.org/package=memo" class="external-link"><img src="https://www.r-pkg.org/badges/version/async?color=purple"></a></li>
 <li><a href="https://github.com/crowding/memo/actions" class="external-link"><img src="https://github.com/crowding/memo/workflows/pkgdown/badge.svg" alt="pkgdown"></a></li>
-<li><a href="https://github.com/crowding/memo/actions" class="external-link"><img src="https://github.com/crowding/memo/workflows/check-full/badge.svg" alt="check-full"></a></li>
+<li><a href="https://github.com/crowding/memo/actions" class="external-link"><img src="https://github.com/crowding/memo/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/crowding/memo/actions" class="external-link"><img src="https://github.com/crowding/memo/workflows/test-coverage/badge.svg" alt="test-coverage"></a></li>
 </ul>
 </div>

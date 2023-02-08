@@ -30,16 +30,14 @@ with_clean_signals <- function(code = NULL) {
 expect_signal <- function (code, pattern=".+") {
   with_clean_signals({
     force(code)
-    expect_that(paste0(signals, collapse=""), matches(pattern),
-                "No signal seen when one was expected")
+    expect_match(paste0(signals, collapse=""), pattern)
   })
 }
 
 expect_no_signal <- function(code, pattern="^$") {
   with_clean_signals({
     force(code)
-    expect_that(paste0(signals, collapse=""), matches(pattern),
-                "Signal called when none was expected")
+    expect_match(paste0(signals, collapse=""), pattern)
   })
 }
 

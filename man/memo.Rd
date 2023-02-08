@@ -3,8 +3,6 @@
 \docType{package}
 \name{memo}
 \alias{memo}
-\alias{memo}
-\alias{memo-package}
 \title{Memoize a function.}
 \usage{
 memo(fn, cache = lru_cache(5000), key = hybrid_key, ...)
@@ -18,14 +16,14 @@ will be forced by the wrapper.}
 \item{cache}{A cache to use. Defaults to a new instance of
 \code{\link{lru_cache}}.  Caches may be shared between memoized functions.}
 
-\item{key}{A hashing strategy. "\code{\link{digest_key}}".
-Other values include "pointer_key" and "hybrid_key".}
+\item{key}{A hashing strategy. The default "\code{\link{hybrid_key}}"
+first checks for pointer equivalence and then falls back to using a
+hash of the arguments. `pointer_key` uses just pointer equivalence,
+and `digest_key` always performs a hash.}
 
 \item{...}{Further arguments passed on to key.}
 }
 \description{
-Memoize a function.
-
 This package implements a cache that can be used to avoid repeated
 computations of functions. The cache lookup is based on object
 identity (i.e.  pointer equivalence) which is suited for functions

@@ -11,7 +11,7 @@ digest_key(fn, cache, digest = digest::digest)
 
 pointer_key(fn, cache)
 
-hybrid_key(fn, cache, digest = digest::digest)
+hybrid_key(fn, cache, digest = function(x) digest::digest(x, "md5"))
 }
 \arguments{
 \item{fn}{A function whose results should be cached.}
@@ -26,19 +26,4 @@ A memoized function.
 \description{
 The function \code{\link{memo}} accepts an argument `key` which
 specifies the keying strategy.
-
-\code{digest_key} computes a key by hashing the contents of the object using
-the digest package. No attempt is made to avoid MD5 hash collisions.
-
-The \code{pointer_key} strategy uses object identity,
-that is, pointer equivalence.  This can be faster because hte
-entire object need not be hashed. However, this strategy is only
-useful when the function is called repeatedly on the same
-object rather than merely identical objects. Also be aware that
-the cache will hold on to the values of the arguments, to prevent
-them being garbage collected.
-
-The \code{hybrid_key} strategy first tries to key on object
-identity and then falls back on computing the md5 digest.
-This may use two cache slots per result.
 }

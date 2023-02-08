@@ -1,3 +1,40 @@
+#' `basic_cache` makes a cache that does not expire old entries.
+basic_cache <- function() {
+  table <- new.env(parent=emptyenv())
+
+  hits <- 0L
+  misses <- 0L
+  expired <- 0L
+  used <- 0L
+
+  function(key, value, action="cache", ifnotfound=NULL) {
+    switch(action,
+           exists=exists(key, cache),
+           cache=if(exists(key, cache)) {
+             hits <<- hits+1L
+             table[[key]]
+           } else {
+             misses <<- misses+1
+             used <<- used+1
+             table[[key]] <<- value
+           },
+           get=if(exists(key, cache)) {
+             hits <<- hits+1L
+           } else {
+             misses<-misses+1L
+             ifnotfound
+           },
+           set=if(!exists(key, cache)) {
+             used <- used+1L
+           },
+           rm=if(exists(key, cache)) {
+             used <<- used-1L
+             expired <<- expired+1L
+             remove(key, envir=table)
+           })
+  }
+}
+
 #' Construct a cache with least-recently-used policy.
 #' @param size The maximum number of results to keep.
 #' @return A function f(key, value) which takes a string in the first

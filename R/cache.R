@@ -79,7 +79,7 @@ pointer_key <- function(fn, cache) {
 #' This may use two cache slots per result.
 #' @param digest A digest function to use.
 #' @rdname strategies
-hybrid_key <- function(fn, cache, digest=digest::digest) {
+hybrid_key <- function(fn, cache, digest=function(x) digest::digest(x, "md5")) {
   delayedAssign("fn_digest", digest(fn))
   function(...) {
     l = list(...)

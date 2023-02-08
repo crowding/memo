@@ -62,7 +62,7 @@ t(sapply(0:16, counted_fib))
 
 The number of calls increases unreasonably. This is because, for instance, `fib(6)` calls both `fib(5)` and `fib(4)`, but `fib(5)` also calls `fib(4)`. The second call to `fib(4)` is wasted work. And this pattern goes on -- the two calls to `fib(4)` lead to _four_ calls to `fib(2)`.  Every time you increment `n` by one, the number of calls roughly doubles.  (Clearly, there are more efficient algorithms for computing the Fibbonacci sequence, but this is a toy example, where `fib` stands in for some expensive function that is being called repeatedly.)
 
-One way to cut down on wasted effort would be to check whether `fib(n)` has already been computed for a given `n`. If it has, `fib` can just return that value instead of starting over. This is called "memoizing." The `memo` package can [automatically]() create a memoized version of a given function, just by wrapping the function definition in `memo()`:
+One way to cut down on wasted effort would be to check whether `fib(n)` has already been computed for a given `n`. If it has, `fib` can just return that value instead of starting over. This is called "memoizing." The `memo` package can [automatically][] create a memoized version of a given function, just by wrapping the function definition in `memo()`:
 
 [automatically]:  https://en.wikipedia.org/wiki/Memoization#Automatic_memoization
 
@@ -125,6 +125,7 @@ fib <- memo(cache=lru_cache(5000), function () {...})
 ```
 
 The Fibonacci sequence being kind of a toy example, memoization has a variety of uses, such as:  
-* Caching the results of expensive database queries, for instance in Shiny apps where many users may make identical queries.
-* Algorithms for path finding (dynamic programming) and parsing.
-* Simulations such as [Cellular automata](https://en.wikipedia.org/wiki/Hashlife).
+
+ * Caching the results of expensive database queries, for instance in Shiny apps where many users may make identical queries.
+ * Algorithms for path finding (dynamic programming) and parsing.
+ * Simulations such as [Cellular automata](https://en.wikipedia.org/wiki/Hashlife).

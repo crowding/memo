@@ -2,6 +2,7 @@
 
 SEXP stringify_item(SEXP, char *);
 int sprintdouble(char *, double);
+SEXP weakref_(SEXP, SEXP);
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L && !defined(__MINGW32__)
 

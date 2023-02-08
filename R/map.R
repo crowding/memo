@@ -1,0 +1,146 @@
+cached_digest <- function(...) digest(list(...), algo="md5")
+
+.onLoad <- function(libname, pkgname) {
+  cached_digest <<- memo(cached_digest, key=pointer_key)
+}
+
+#' A reference-valued, key-value store.
+#'
+#' [hashmap()] constructs a hashmap, which is an object that behaves
+#' like an [environment] but can key on arbitrary objects rather than
+#' just characters.
+#'
+#' You can use multiple indices in a hashmap; the effect is similar to
+#' indexing on a list containing all keys.
+#'
+#' Type is significant; for instance, float `1` and integer `1L` are
+#' considered distinct indices. It is also permitted to index on NULL,
+#' NA, or the empty string.
+#'
+#' The `memo` package hashmap has a performance optimization over
+#' other implementations of this concept, in that the md5 digest is
+#' memoized on scalar and pointer values. That means that if you
+#' lookup using keys that are pointer-identical to previously seen
+#' keys, it will skip computing the digest a second time. Indexing
+#' using scalar values will also bypass the md5 hash.
+#'
+#' @return `hashmap()` returns a newly constructed hashmap.
+#' @author Peter Meilstrup
+#' @export
+hashmap <- function() {
+  structure(
+    list(
+      keys=new.env(parent=emptyenv()),
+      vals=new.env(parent=emptyenv()),
+      digest=cached_digest),
+    class="hashmap")
+}
+
+#' @exportS3Method "[" hashmap
+#' @rdname hashmap
+`[.hashmap` <- function(x, ...) {
+  mapply(`[[.hashmap`, ..., MoreArgs=list(x=x), SIMPLIFY=FALSE)
+}
+
+#'  The `[` and `[<-` methods work in terms of a list formed by
+#'   iterating over the given indices in parallel; for instance
+#'   `x[c(2, 8), c(3, 9)]` will be equivalent to `list(x[[2, 3]],
+#'   x[[3, 9]])`.
+#' @param replacement A replacement value for `[[`; for '[', a
+#'   sequence of replacement values.
+#' @rdname hashmap
+#' @exportS3Method "[<-" hashmap
+`[<-.hashmap` <- function(x, ..., value) {
+  mapply(`[[<-.hashmap`, ..., value=value, MoreArgs=list(x=x), SIMPLIFY=FALSE)
+  x
+}
+
+#' @exportS3Method "[[" hashmap
+#' @rdname hashmap
+`[[.hashmap` <- function(x, ...) {
+  dig <- x$digest(...)
+  if (exists(dig, envir=x$keys)) {
+    stopifnot(identical(x$keys[[dig]], list(...)))
+    x$vals[[dig]]
+  } else NULL
+}
+
+#' @exportS3Method "[[<-" hashmap
+#' @rdname hashmap
+`[[<-.hashmap` <- function(x, ..., value) {
+  dig <- x$digest(...)
+  x$keys[[dig]] <- list(...)
+  x$vals[[dig]] <- value
+  x
+}
+
+#' @export
+#' @rdname hashmap
+keys <- function(x, ...) UseMethod("keys")
+
+#' @exportS3Method
+keys.hashmap <- function(x, ...) {
+  lapply(sort(names(x$keys)), function(k) x$keys[[k]])
+}
+
+#' @export
+#' @rdname hashmap
+values <- function(x, ...) UseMethod("values")
+
+#' @exportS3Method
+values.hashmap <- function(x, ...) {
+  lapply(sort(names(x$keys)), function(k) x$vals[[k]])
+}
+
+#' @export
+#' @return `pairs(x)` extracts from a hashmap a list of pairs, each
+#'   pair being of the form `list(key=, val=)`.
+#' @rdname hashmap
+pairs <- function(x, ...) UseMethod("pairs")
+
+#' @exportS3Method
+pairs.hashmap <- function(x, ...) {
+  lapply(sort(names(x$keys)), function(k) list(key=x$keys[[k]], value=x$vals[[k]]))
+}
+
+#' @export
+#' @param pairs A list of pairs, the first element is treated as key
+#'   and the second as value.
+#' @rdname hashmap
+from_pairs <- function(pairs) {
+  hm <- hashmap()
+  lapply(pairs, function(x)  {
+    dig <- hm$digest(x[[1]])
+    hm$keys[[dig]] <- x[[1]]
+    hm$vals[[dig]] <- x[[2]]
+  })
+  hm
+}
+
+#' @export
+#' @rdname hashmap
+#' @param ... Any number of indices.
+#' @return `hasKey(x)` returns TRUE if there is a key with the same
+#'   digest as `...` that compares [identical()]
+hasKey <- function(x, ...) UseMethod("hasKey")
+
+#' @exportS3Method
+hasKey.hashmap <- function(x, ...) {
+  exists(x$digest(...), envir=x$keys)
+}
+
+#' The base R behavior of deleting keys using `x[[key]] <- NULL` is
+#' explicitly _not_ supported. Instead, use `dropKey(x, ...)`.
+#' @rdname hashmap
+#' @export
+dropKey <- function(x, ...) UseMethod("drop")
+
+#' @exportS3Method
+dropKey.hashmap <- function(x, key) {
+  dig <- x$digest(...)
+  if (exists(dig, envir=x$keys)) {
+    rm(dig, envir=x$keys)
+    rm(dig, envir=x$values)
+  }
+  hashmap
+}

@@ -99,10 +99,10 @@ values.hashmap <- function(x, ...) {
 #' @return `pairs(x)` extracts from a hashmap a list of pairs, each
 #'   pair being of the form `list(key=, val=)`.
 #' @rdname hashmap
-pairs <- function(x, ...) UseMethod("pairs")
+to_pairs <- function(x, ...) UseMethod("pairs")
 
 #' @exportS3Method
-pairs.hashmap <- function(x, ...) {
+to_pairs.hashmap <- function(x, ...) {
   lapply(sort(names(x$keys)), function(k) list(key=x$keys[[k]], value=x$vals[[k]]))
 }
 
@@ -137,15 +137,15 @@ hasKey.hashmap <- function(x, ...) {
 #' explicitly _not_ supported. Instead, use `dropKey(x, ...)`.
 #' @rdname hashmap
 #' @export
-dropKey <- function(x, ...) UseMethod("drop")
+dropKey <- function(x, ...) UseMethod("dropKey")
 
 #' @exportS3Method
-dropKey.hashmap <- function(x, key) {
+dropKey.hashmap <- function(x, ...) {
   digest <- x$digest # why does CRAN complain about x$digest(...)
-  dig <- x$digest(...)
+  dig <- digest(...)
   if (exists(dig, envir=x$keys)) {
-    rm(dig, envir=x$keys)
-    rm(dig, envir=x$values)
+    rm(list=dig, envir=x$keys)
+    rm(list=dig, envir=x$vals)
   }
-  hashmap
+  invisible(hashmap)
 }

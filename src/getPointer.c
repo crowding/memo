@@ -22,7 +22,7 @@ int snprintdouble(char *buf, size_t n, double arg) {
   data.f = arg;
 
   for (int i = 0; i < sizeof(double) / sizeof(char); i++) {
-    int chars = snprintf(buf, "%02x", n, data.ch[i]);
+    int chars = snprintf(buf, n, "%02x", data.ch[i]);
     written += chars;
     buf += chars;
     n -= chars;

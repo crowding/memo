@@ -8,7 +8,7 @@
 \alias{[[<-.hashmap}
 \alias{keys}
 \alias{values}
-\alias{pairs}
+\alias{to_pairs}
 \alias{from_pairs}
 \alias{hasKey}
 \alias{dropKey}
@@ -28,7 +28,7 @@ keys(x, ...)
 
 values(x, ...)
 
-pairs(x, ...)
+to_pairs(x, ...)
 
 from_pairs(pairs)
 

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">memo</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1</span>
       </span>
     </div>
 
@@ -56,9 +56,15 @@
         </td>
         <td><p>Report cache statistics.</p></td>
       </tr><tr><td>
-          <p><code><a href="lru_cache.html">lru_cache()</a></code> </p>
+          <p><code><a href="hashmap.html">hashmap()</a></code> <code><a href="hashmap.html">`[`(<i>&lt;hashmap&gt;</i>)</a></code> <code><a href="hashmap.html">`[&lt;-`(<i>&lt;hashmap&gt;</i>)</a></code> <code><a href="hashmap.html">`[[`(<i>&lt;hashmap&gt;</i>)</a></code> <code><a href="hashmap.html">`[[&lt;-`(<i>&lt;hashmap&gt;</i>)</a></code> <code><a href="hashmap.html">keys()</a></code> <code><a href="hashmap.html">values()</a></code> <code><a href="hashmap.html">pairs()</a></code> <code><a href="hashmap.html">from_pairs()</a></code> <code><a href="hashmap.html">hasKey()</a></code> <code><a href="hashmap.html">dropKey()</a></code> </p>
         </td>
-        <td><p>Construct a cache with least-recently-used policy.</p></td>
+        <td><p>A reference-valued, key-value store.</p></td>
+      </tr><tr><td>
+          <p><code><a href="lru_cache.html">permanent_cache()</a></code> <code><a href="lru_cache.html">lru_cache()</a></code> </p>
+        </td>
+        <td><p>`basic_cache` makes a cache that does not expire old entries.
+It should be used in situations where you know the number of
+things to remember is bounded.</p></td>
       </tr><tr><td>
           <p><code><a href="memo.html">memo()</a></code> </p>
         </td>
@@ -80,7 +86,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

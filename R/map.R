@@ -38,6 +38,7 @@ hashmap <- function() {
 
 #' @exportS3Method "[" hashmap
 #' @rdname hashmap
+#' @param x a hashmap object.
 `[.hashmap` <- function(x, ...) {
   mapply(`[[.hashmap`, ..., MoreArgs=list(x=x), SIMPLIFY=FALSE)
 }
@@ -46,7 +47,7 @@ hashmap <- function() {
 #'   iterating over the given indices in parallel; for instance
 #'   `x[c(2, 8), c(3, 9)]` will be equivalent to `list(x[[2, 3]],
 #'   x[[3, 9]])`.
-#' @param replacement A replacement value for `[[`; for '[', a
+#' @param value A replacement value for `[[`; for '[', a
 #'   sequence of replacement values.
 #' @rdname hashmap
 #' @exportS3Method "[<-" hashmap
@@ -58,7 +59,8 @@ hashmap <- function() {
 #' @exportS3Method "[[" hashmap
 #' @rdname hashmap
 `[[.hashmap` <- function(x, ...) {
-  dig <- x$digest(...)
+  digestfn <- x$digest
+  dig <- digestfn(...) # just writing x$digest(...) makes CRAN check complain???
   if (exists(dig, envir=x$keys)) {
     stopifnot(identical(x$keys[[dig]], list(...)))
     x$vals[[dig]]
@@ -68,7 +70,8 @@ hashmap <- function() {
 #' @exportS3Method "[[<-" hashmap
 #' @rdname hashmap
 `[[<-.hashmap` <- function(x, ..., value) {
-  dig <- x$digest(...)
+  digestfn <- x$digest
+  dig <- digestfn(...) # just writing x$digest(...) makes CRAN check complain???
   x$keys[[dig]] <- list(...)
   x$vals[[dig]] <- value
   x
@@ -126,7 +129,8 @@ hasKey <- function(x, ...) UseMethod("hasKey")
 
 #' @exportS3Method
 hasKey.hashmap <- function(x, ...) {
-  exists(x$digest(...), envir=x$keys)
+  digest <- x$digest # CRAN complains about x$digest(...)
+  exists(digest(...), envir=x$keys)
 }
 
 #' The base R behavior of deleting keys using `x[[key]] <- NULL` is
@@ -137,6 +141,7 @@ dropKey <- function(x, ...) UseMethod("drop")
 
 #' @exportS3Method
 dropKey.hashmap <- function(x, key) {
+  digest <- x$digest # why does CRAN complain about x$digest(...)
   dig <- x$digest(...)
   if (exists(dig, envir=x$keys)) {
     rm(dig, envir=x$keys)

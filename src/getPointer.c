@@ -69,7 +69,7 @@ SEXP _string_reps(SEXP list) {
        "c0x0123456789abcdef=c_0x0123456789abcdef/0x0123456789abcdef/0x01234567abcdef/0x01234567abcdef" = 97 chars*/
     char buf[128];
     char *bufptr = buf;
-    char *end = &buf[128];
+    char *end = bufptr + sizeof(buf) - 1;
 
     if (in_names != R_NilValue) {
       SEXP name = STRING_ELT(in_names, i);

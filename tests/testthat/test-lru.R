@@ -25,7 +25,7 @@ test_that("cache incrementally expires old values", {
   expect_equal(100, store("foo", 100))
 })
 
-test_that("cache expires least recently accessed values", {
+test_that("lru_cache expires least recently accessed values", {
   store <- lru_cache(3)
   store("foo", 1)
   store("bar", 2)
@@ -39,6 +39,15 @@ test_that("cache expires least recently accessed values", {
   #from middle of list
   expect_equal(4, store("qux", stop("should not be evaluated")))
   expect_equal(200, store("baz", 200))
+})
+
+test_that("permanent_cache does not expire values", {
+  store <- permanent_cache()
+  for (i in 1:10001) {
+    store(as.character(i), i)
+  }
+  fn <- memo(identity, cache=store)
+  cache_stats(fn)$used %is% 10001
 })
 
 test_that("cache_stats extracts stats", {

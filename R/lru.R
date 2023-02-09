@@ -1,36 +1,42 @@
 #' `basic_cache` makes a cache that does not expire old entries.
-basic_cache <- function() {
-  table <- new.env(parent=emptyenv())
+#' It should be used in situations where you know the number of
+#' things to remember is bounded.
+#' @rdname lru_cache
+#' @export
+permanent_cache <- function() {
+  cache <- new.env(parent=emptyenv())
 
   hits <- 0L
   misses <- 0L
   expired <- 0L
   used <- 0L
+  size <- Inf
 
   function(key, value, action="cache", ifnotfound=NULL) {
     switch(action,
            exists=exists(key, cache),
            cache=if(exists(key, cache)) {
              hits <<- hits+1L
-             table[[key]]
+             cache[[key]]
            } else {
              misses <<- misses+1
-             used <<- used+1
-             table[[key]] <<- value
+             used <<- used+1L
+             cache[[key]] <<- value
            },
            get=if(exists(key, cache)) {
              hits <<- hits+1L
            } else {
-             misses<-misses+1L
+             misses <- misses+1L
              ifnotfound
            },
-           set=if(!exists(key, cache)) {
-             used <- used+1L
+           set={
+             if(!exists(key, cache)) {used <- used+1L}
+             cache[[key]] <<- value
            },
            rm=if(exists(key, cache)) {
              used <<- used-1L
              expired <<- expired+1L
-             remove(key, envir=table)
+             rm(list=key, envir=cache)
            })
   }
 }
@@ -39,7 +45,7 @@ basic_cache <- function() {
 #' @param size The maximum number of results to keep.
 #' @return A function f(key, value) which takes a string in the first
 #' parameter and a lazily evaluated value in the second. `f`
-#' will use the string key to retrieve a value from the cache, or 
+#' will use the string key to retrieve a value from the cache, or
 #' return the matching item from the cache, or force the second
 #' argument and return that, remembering the result on future calls.
 #'
@@ -95,4 +101,18 @@ lru_cache <- function(size = 10000) {
       value
     }
   }
+}
+
+#' Report cache statistics.
+#'
+#' @param fn A memoized function that was created by \code{\link{memo}}.
+#' @return A list with labels "size", "used", "hits", "misses", "expired"
+#' counting the number of slots in the cache, the number of slots currently
+#' used, the number of times a previous result was recalled, a new result was
+#' recorded, and a result was dropped.
+#' @export
+cache_stats <- function(fn) {
+  hitdata <- mget(c("size", "used", "hits", "misses", "expired"),
+                  environment(environment(fn)$cache))
+  as.list(hitdata)
 }

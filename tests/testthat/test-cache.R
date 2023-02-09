@@ -117,3 +117,32 @@ test_that("pointer and hybrid caches hold on to their arguments", local({
   expect_true(observe_keysize("pointer_key") > 0.5)
   expect_true(observe_keysize("hybrid_key") > 0.5)
 }))
+
+test_that("permanent cache", {
+
+  ca <- permanent_cache()
+  ac <- memo(as.character, cache=ca, key="digest_key")
+  ac(1) %is% "1"
+  ac(2) %is% "2"
+  ac(2) %is% "2"
+
+  cache_stats(ac) %is% list(size=Inf, used=2, hits=1, misses=2, expired=0)
+})
+
+test_that("permanent cache get/set", {
+
+  ca <- permanent_cache()
+  ca("one", 1)
+  ca("two", 2)
+  ca("three", action="get", ifnotfound=NULL) %is% NULL
+  ca("two", 3) %is% 2
+  ca("two", 3, action="set")
+  ca("two", 4) %is% 3
+  ca("two", action="rm") #expire
+  expect_false(ca("two", action="exists"))
+  ca("two", 4) %is% 4
+  expect_true(ca("two", action="exists"))
+
+  ac <- memo(as.character, cache=ca, key="digest_key")
+  cache_stats(ac) %is% list(size=Inf, used=2, hits=2, misses=3, expired=1)
+})

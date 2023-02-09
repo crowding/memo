@@ -37,13 +37,15 @@ hasKey(x, ...)
 dropKey(x, ...)
 }
 \arguments{
+\item{x}{a hashmap object.}
+
 \item{...}{Any number of indices.}
+
+\item{value}{A replacement value for `[[`; for '[', a
+sequence of replacement values.}
 
 \item{pairs}{A list of pairs, the first element is treated as key
 and the second as value.}
-
-\item{replacement}{A replacement value for `[[`; for '[', a
-sequence of replacement values.}
 }
 \value{
 `hashmap()` returns a newly constructed hashmap.

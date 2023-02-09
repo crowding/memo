@@ -99,7 +99,7 @@ values.hashmap <- function(x, ...) {
 #' @return `pairs(x)` extracts from a hashmap a list of pairs, each
 #'   pair being of the form `list(key=, val=)`.
 #' @rdname hashmap
-to_pairs <- function(x, ...) UseMethod("pairs")
+to_pairs <- function(x, ...) UseMethod("to_pairs")
 
 #' @exportS3Method
 to_pairs.hashmap <- function(x, ...) {

@@ -24,7 +24,7 @@ test_that("hash uses arbitrary keys", {
   x[list("1", NULL)] %is% list("foo", "qux")
 
   length(keys(x)) %is% 7
-  expect_setequal(to_keys(x),
+  expect_setequal(keys(x),
                   list(list("1"), list(quote(`1`)), list(1),
                        list(1L), list(NULL), list(NA), list(NA_character_)))
   expect_setequal(values(x),
@@ -47,15 +47,15 @@ test_that("hash [] and []<- and pairs()", {
 
   x[list(1, 5), c("three", "seven")] <- c("refirst", "third")
 
-  expect_setequal(pairs(x),
+  expect_setequal(to_pairs(x),
                   list(list(key = list(4, "seven"), value = "second"),
                        list(key = list(1, "three"), value = "refirst"),
                        list(key = list(5, "seven"), value = "third")))
 
-  y <- from_pairs(pairs(x))
-  expect_setequal(pairs(x), pairs(y))
+  y <- from_pairs(to_pairs(x))
+  expect_setequal(to_pairs(x), to_pairs(y))
 
   dropKey(x, 1, "three")
-  expect_equal(length(to_keys(x)), 2)
+  expect_equal(length(keys(x)), 2)
 
 })

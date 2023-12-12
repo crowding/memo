@@ -1,10 +1,17 @@
+memo v1.1.1 (Release date: 2023-12-11)
+================
+
+* Correct issues raised by CRAN check:
+  * Always cast argument of 'printf("%p", )' to '(void *)'
+
 memo v1.1 (Release date: 2023-02-10)
 ================
 
 Changes:
 
 * Introduced "hashmap" class
-* Changed uses of 'sprintf' to 'snprintf'
+* Correct issues raised by CRAN check:
+  * Changed uses of 'sprintf' to 'snprintf'
 
 memo v1.0.2 (Release date: 2022-04-05)
 ================

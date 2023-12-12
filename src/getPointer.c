@@ -123,7 +123,7 @@ SEXP stringify_item(SEXP item, char *bufptr, char* end) {
         case INTSXP: bufptr +=  snprintf(bufptr, end-bufptr, "i0"); break;
         case LGLSXP: bufptr += snprintf(bufptr, end-bufptr, "l0"); break;
         case STRSXP: bufptr += snprintf(bufptr, end-bufptr, "s0"); break;
-        default: error("Unexpected type %s (this shouldn't happen)", TYPEOF(item));
+        default: error("Unexpected type %s (this shouldn't happen)", type2char(TYPEOF(item)));
         }
       } else if (LENGTH(item) == 1) {
         switch(TYPEOF(item)) {
@@ -136,7 +136,7 @@ SEXP stringify_item(SEXP item, char *bufptr, char* end) {
         case STRSXP:
           REPROTECT(item_ptr = STRING_ELT(item, 0), ix);
           bufptr += snprintf(bufptr, end-bufptr, "s%p", CHAR(item_ptr)); break;
-        default: error("Unexpected type %s (this shouldn't happen)", TYPEOF(item));
+        default: error("Unexpected type %s (this shouldn't happen)", type2char(TYPEOF(item)));
         }
       } else {
         /* for non-scalar vectors, represent the pointer */

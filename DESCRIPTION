@@ -1,8 +1,8 @@
 Package: memo
 Type: Package
 Title: In-Memory Caching of Repeated Computations (Memoization)
-Version: 1.1
-Date: 2023-1-12
+Version: 1.1.1
+Date: 2023-12-11
 Author: Peter Meilstrup <peter.meilstrup@gmail.com>
 Maintainer: Peter Meilstrup <peter.meilstrup@gmail.com>
 Description: A simple in-memory, LRU cache that can be wrapped
@@ -22,4 +22,4 @@ Collate:
     'map.R'
     'memo-description.r'
 VignetteBuilder: knitr
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3

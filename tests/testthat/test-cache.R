@@ -66,6 +66,27 @@ test_that("Pointer Memoization does compare scalars by value.", {
   expect_no_signal(f(b) %is% 246962467566480)
 })
 
+test_that("Memoization of empty vectors", {
+  f <- memo(function(x) {signal(); paste(typeof(x), length(x))})
+  expect_signal(f(logical(0)) %is% "logical 0")
+  expect_signal(f(integer(0)) %is% "integer 0")
+  expect_signal(f(numeric(0)) %is% "double 0")
+  expect_signal(f(character(0)) %is% "character 0")
+  expect_no_signal(f(logical(0)) %is% "logical 0")
+  expect_no_signal(f(integer(0)) %is% "integer 0")
+  expect_no_signal(f(numeric(0)) %is% "double 0")
+  expect_no_signal(f(character(0)) %is% "character 0")
+})
+
+test_that("memoization of named args", {
+  f <- memo(function(...) {
+    signal();
+    paste0(paste0(names(list(...)), "=", c(...)), collapse=", ")
+  })
+  expect_signal(f(a=1,b=2,c=3) %is% "a=1, b=2, c=3")
+  expect_no_signal(f(a=1,b=2,c=3) %is% "a=1, b=2, c=3")
+})
+
 test_that("Digest-based memoisation memoises on content", {
   f <- memo(function(x) {signal(); x*2}, key="digest_key")
   a <- 1:5 + 0 #R now has range objects????
@@ -145,4 +166,10 @@ test_that("permanent cache get/set", {
 
   ac <- memo(as.character, cache=ca, key="digest_key")
   cache_stats(ac) %is% list(size=Inf, used=2, hits=2, misses=3, expired=1)
+})
+
+test_that("promises unwrap to expressions", {
+  arg_promises <- function(...) .Call(memo:::`_dots2list`, get("..."))
+  memo:::string_reps(arg_promises(one, two, three)) %is%
+     memo:::string_reps(list(quote(one), quote(two), quote(three)))
 })

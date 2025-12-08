@@ -3,7 +3,6 @@
 \docType{package}
 \name{memo-package}
 \alias{memo-package}
-\alias{_PACKAGE}
 \title{In-memory caching of repeated computations, by pointer equivalence.}
 \description{
 The `memo` package implements a cache that can be used to avoid repeated

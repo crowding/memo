@@ -91,6 +91,18 @@ SEXP _string_reps(SEXP list) {
   return(out_reps);
 }
 
+SEXP _get_prcode(SEXP item) {
+  SEXP env = PROTECT(Rf_allocSExp(ENVSXP));
+  SET_ENCLOS(env, R_GlobalEnv);
+  Rf_defineVar(Rf_install("x"), item, env);
+  SEXP call = PROTECT(Rf_allocLang(2));
+  SETCAR(call, Rf_install("substitute"));
+  SETCAR(CDR(call), Rf_install("x"));
+  SEXP result = Rf_eval(call, env);
+  UNPROTECT(2);
+  return result;
+}
+
 /* Construct a string identifying some SEXP, either as a scalar value or as a pointer.
    If we use its pointer, mark the item immutable.
    Return that pointer, or R_NilValue. */
@@ -103,7 +115,7 @@ SEXP stringify_item(SEXP item, char *bufptr, char* end) {
     switch (TYPEOF(item)) {
     case PROMSXP:
       /* if we have a promise, drill down. */
-      item = PRCODE(item);
+      item = _get_prcode(item);
       break;
     case CHARSXP:
       /* interned string, represent its pointer */
@@ -153,9 +165,9 @@ SEXP stringify_item(SEXP item, char *bufptr, char* end) {
     case CLOSXP:
       REPROTECT(item_ptr = item, ix);
       bufptr += snprintf(bufptr, end-bufptr, "c_%p/%p/%p",
-                        (void *) FORMALS(item),
-                        (void *) BODY(item),
-                        (void *) CLOENV(item));
+                        (void *) R_ClosureFormals(item),
+                        (void *) R_ClosureBody(item),
+                        (void *) R_ClosureEnv(item));
       done = 1;
       break;
     case SYMSXP:
@@ -179,6 +191,21 @@ SEXP stringify_item(SEXP item, char *bufptr, char* end) {
   }
   UNPROTECT(1);
   return item_ptr;
+}
+
+SEXP _dots2list(SEXP dots) {
+  /* used only for testing a couple of edge cases. */ 
+  assert_type(dots, DOTSXP);
+  int len = Rf_length(dots);
+  SEXP names = PROTECT(getAttrib(dots, R_NamesSymbol));
+  SEXP out = PROTECT(allocVector(VECSXP, len));
+  for (int i = 0; i < len; i++) {
+    SET_VECTOR_ELT(out, i, CAR(dots));
+    dots = CDR(dots);
+  }
+  setAttrib(out, R_NamesSymbol, names);
+  UNPROTECT(2);
+  return out;
 }
 
 /*

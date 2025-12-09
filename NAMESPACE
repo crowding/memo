@@ -23,6 +23,5 @@ export(pointer_key)
 export(to_pairs)
 export(values)
 import(digest)
-useDynLib(memo,"_string_reps")
 useDynLib(memo,"_dots2list")
-
+useDynLib(memo,"_string_reps")

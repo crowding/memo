@@ -3,9 +3,9 @@
 \name{permanent_cache}
 \alias{permanent_cache}
 \alias{lru_cache}
-\title{`basic_cache` makes a cache that does not expire old entries.
+\title{`permanent_cache` constructs a cache that does not expire old entries.
 It should be used in situations where you know the number of
-things to remember is bounded.}
+values to remember is bounded.}
 \usage{
 permanent_cache()
 
@@ -25,9 +25,9 @@ When the number of entries in the cache exceeds \code{size}, the least
 recently accessed entries are removed.
 }
 \description{
-`basic_cache` makes a cache that does not expire old entries.
+`permanent_cache` constructs a cache that does not expire old entries.
 It should be used in situations where you know the number of
-things to remember is bounded.
+values to remember is bounded.
 
 Construct a cache with least-recently-used policy.
 }

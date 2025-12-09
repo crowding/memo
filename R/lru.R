@@ -1,6 +1,6 @@
-#' `basic_cache` makes a cache that does not expire old entries.
+#' `permanent_cache` constructs a cache that does not expire old entries.
 #' It should be used in situations where you know the number of
-#' things to remember is bounded.
+#' values to remember is bounded.
 #' @rdname lru_cache
 #' @export
 permanent_cache <- function() {
@@ -22,15 +22,17 @@ permanent_cache <- function() {
              misses <<- misses+1
              used <<- used+1L
              cache[[key]] <<- value
+             value
            },
            get=if(exists(key, cache)) {
              hits <<- hits+1L
+             cache[[key]]
            } else {
              misses <- misses+1L
              ifnotfound
            },
            set={
-             if(!exists(key, cache)) {used <- used+1L}
+             if(!exists(key, cache)) {used <<- used+1L}
              cache[[key]] <<- value
            },
            rm=if(exists(key, cache)) {

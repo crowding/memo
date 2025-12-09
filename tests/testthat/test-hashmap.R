@@ -20,6 +20,7 @@ test_that("hash uses arbitrary keys", {
   x[[ NULL ]] %is% "qux"
   x[[ NA ]] %is% "quux"
   x[[ NA_character_ ]] %is% "quuux"
+  x[[ "nonexistent_key" ]] %is% NULL
 
   x[list("1", NULL)] %is% list("foo", "qux")
 

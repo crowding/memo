@@ -92,8 +92,7 @@ SEXP _string_reps(SEXP list) {
 }
 
 SEXP _get_prcode(SEXP item) {
-  SEXP env = PROTECT(Rf_allocSExp(ENVSXP));
-  SET_ENCLOS(env, R_GlobalEnv);
+  SEXP env = PROTECT(R_NewEnv(R_GlobalEnv, 1, 29));
   Rf_defineVar(Rf_install("x"), item, env);
   SEXP call = PROTECT(Rf_allocLang(2));
   SETCAR(call, Rf_install("substitute"));

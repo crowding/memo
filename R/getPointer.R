@@ -7,6 +7,7 @@
 # different objects, the calling code is responsible for holding on to
 # references to the objects (see test-cache.R).
 #' @useDynLib memo _string_reps
+#' @useDynLib memo _dots2list
 string_reps <- function(list) {
   .Call(`_string_reps`, list)
 }

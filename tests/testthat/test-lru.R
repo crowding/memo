@@ -42,12 +42,14 @@ test_that("lru_cache expires least recently accessed values", {
 })
 
 test_that("permanent_cache does not expire values", {
-  store <- permanent_cache()
+  fn <- memo(identity, cache=permanent_cache(), key=pointer_key)
   for (i in 1:10001) {
-    store(as.character(i), i)
+    fn(i)
   }
-  fn <- memo(identity, cache=store)
   cache_stats(fn)$used %is% 10001
+  cache_stats(fn)$hits %is% 0
+  fn(1000L) %is% 1000L
+  cache_stats(fn)$hits %is% 1
 })
 
 test_that("cache_stats extracts stats", {
